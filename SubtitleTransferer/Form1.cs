@@ -88,6 +88,7 @@ namespace SubtitleTransferer
                 strStartFolder = dialog.FileName;
                 txt_startFolder.Text = strStartFolder;
             }
+            UpdateProgressBar(0);
         }
 
         private void LogMessage(string msg)
@@ -145,17 +146,19 @@ namespace SubtitleTransferer
                 Application.DoEvents();
             }
         }
-        private void resetEverything()
+        private void resetSubtitleTransferer()
         {
             if (this.listBox_subtitleFiles.InvokeRequired)
             {
-                this.listBox_subtitleFiles.BeginInvoke((MethodInvoker)delegate () { resetEverything(); ; });
+                this.listBox_subtitleFiles.BeginInvoke((MethodInvoker)delegate () { resetSubtitleTransferer(); ; });
             }
             else
             {
+                txt_startFolder.Text = "";
                 SubtitleFiles.Clear();
                 UpdateProgressBar(0);
                 listBox_subtitleFiles.Items.Clear();
+                btn_SelectAllFiles.Text = "Select All";
             }
         }
 
@@ -222,9 +225,9 @@ namespace SubtitleTransferer
             // Hreinsum út listann af subtitle skrám ef einhver var til fyrir
             //SubtitleFiles.Clear();
             //listBox_subtitleFiles.Items.Clear();
-            resetEverything();
+            resetSubtitleTransferer();
             ChangeMainLabel("Scanning for files..");
-            LogMessage("Scanning for files..");
+            LogMessage("Scanning for files in '" + new DirectoryInfo(strStartFolder).Name + "'");
 
             // Start scanning the directory for subtitles
             ScanDirectoryForSubtitles(strStartFolder);
@@ -390,7 +393,9 @@ namespace SubtitleTransferer
             var Movies = Directory.GetFiles(sDir, "*.*").Where(s => s.EndsWith(".mkv") || s.EndsWith(".mp4") || s.EndsWith(".avi") || s.EndsWith(".m4v"));
             var Subtitles = new DirectoryInfo(sDir).GetFiles("*.srt");
 
-            if (Movies.Count() > 0 && Subtitles.Count() > 0)
+
+            //if (Movies.Count() > 0 && Subtitles.Count() > 0)
+            if (Movies.Count() == Subtitles.Count())  // If the subtitles and the video files match we consider this folder already processed
             {
                 // We got at least 1 movie file and 1 subtitle file, we need to check if there is a matching movie and subtitle files which signify there is already a renamed subtitle file present
                 foreach (string m in Movies)
@@ -937,12 +942,10 @@ namespace SubtitleTransferer
                 LogMessage("All done, select new folder to scan");
             }
 
-            // Reset the form
-            txt_startFolder.Text = "";
-            SubtitleFiles.Clear();
-            listBox_subtitleFiles.Items.Clear();
+            // Reset the program
+            resetSubtitleTransferer();
 
-            // Set the progressbar to 100
+            // Set the progressbar to 0
             UpdateProgressBar(100);
 
             // Enable Checkboxes
@@ -950,6 +953,15 @@ namespace SubtitleTransferer
             // Disable Buttons
             //ToggleAllButtonsState(false);
 
+        }
+
+        private void resetSubtitleTransferer2()
+        {
+            // Reset the form
+            txt_startFolder.Text = "";
+            SubtitleFiles.Clear();
+            listBox_subtitleFiles.Items.Clear();
+            btn_SelectAllFiles.Text = "Select All";
         }
  
         private void btn_moveAndRenameSelectedSubtitles_Click(object sender, EventArgs e)
@@ -998,17 +1010,28 @@ namespace SubtitleTransferer
             if (e.NewValue == CheckState.Checked)
             {
                 btn_moveAndRenameSelectedSubtitles.Enabled = true;
+                // We have to check if every item in the list is checked, if so we change the name of the button
+                if(listBox_subtitleFiles.Items.Count == listBox_subtitleFiles.CheckedItems.Count + 1) //We add +1 because we are already checking one item
+                {
+                    btn_SelectAllFiles.Text = "Clear";
+                } else
+                {
+                    btn_SelectAllFiles.Text = "Select All";
+                }
             }
             else
             {
                 // Athugum hvort það sé eitthvað annað valið
-                if (listBox_subtitleFiles.CheckedItems.Count > 1)
+                if (listBox_subtitleFiles.CheckedItems.Count > 1) // Það verður alltaf allavega 1 í checkedItems þar sem við erum að breyta stöðunni á iteminu
                 {
+                    // Allavega eitt annað er valið, virkjum Execute takkann
                     btn_moveAndRenameSelectedSubtitles.Enabled = true;
+                    btn_SelectAllFiles.Text = "Clear";
                 }
                 else
                 {
                     btn_moveAndRenameSelectedSubtitles.Enabled = false;
+                    btn_SelectAllFiles.Text = "Select All";
                 }
             }
         }
