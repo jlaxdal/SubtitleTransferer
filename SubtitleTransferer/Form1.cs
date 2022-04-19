@@ -269,7 +269,13 @@ namespace SubtitleTransferer
                 foreach (Subtitle file in SubtitleFiles)
                 //foreach (string filename in SubtitleFiles)
                 {
-                    listBox_subtitleFiles.Items.Add(file.SubtitleFilepath);
+                    if (file != null)
+                    {
+                        listBox_subtitleFiles.Items.Add(file.SubtitleFilepath);
+                    } else
+                    {
+                        LogMessage("There was an empty subtitle file in our array", true);
+                    }
                 }
 
             }
@@ -472,7 +478,7 @@ namespace SubtitleTransferer
             }
             else
             {
-                LogMessage("There are multiple subtitles, we have to find the english ones", true);
+                LogMessage("There are multiple subtitles, we have to look for the english ones", true);
                 ArrayList engSub = new ArrayList();
                 // We got more subtitles than 1, we go over all of them to find the english ones
                 foreach (Subtitle fi in subtitles)
@@ -487,7 +493,7 @@ namespace SubtitleTransferer
                 if (engSub.Count == 0)
                 {
                     // We didn't find any english subtitles
-                    LogMessage("We didn't find any english subtitles");
+                    LogMessage("We didn't find any english subtitles in directory");
                     return null;
                 }
                 else if (engSub.Count == 1)
