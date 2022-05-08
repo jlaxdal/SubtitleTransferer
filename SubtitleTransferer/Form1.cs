@@ -1072,7 +1072,7 @@ namespace SubtitleTransferer
                 }
 
                 // Now we have the identified language so we need to check what it is, this is simple we just check if we got 'simple'
-                if (langCode == "simple")
+                if (langCode == "simple" || langCode == "en")
                 {
                     // NTextCat detected english so we return true
                     LogMessage("The file '" + file.SubtitleFolder + "/" + file.SubtitleFilename + "' is english",true);
