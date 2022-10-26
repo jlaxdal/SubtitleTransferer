@@ -395,7 +395,6 @@ namespace SubtitleTransferer
         private bool CheckforMovieSubtitleCombo(string sDir)
         {
             DirectoryInfo di = new DirectoryInfo(sDir);
-
             var Movies = Directory.GetFiles(sDir, "*.*").Where(s => s.EndsWith(".mkv") || s.EndsWith(".mp4") || s.EndsWith(".avi") || s.EndsWith(".m4v"));
             var Subtitles = new DirectoryInfo(sDir).GetFiles("*.srt");
 
@@ -656,6 +655,10 @@ namespace SubtitleTransferer
 
                     foreach (DirectoryInfo subfolder in subfolders)
                     {
+                        // We skip "system" folders if they are present, these can be "System Volume Information" folders and others that most likely don't contain media and so it's pointless to process them
+                        if (subfolder.Attributes.HasFlag(System.IO.FileAttributes.System))
+                        { continue; }
+
                         // update the probressbar
                         double progress = ++ProgressBarIncrementRun * realIncrementValue;
                         UpdateProgressBar(progress);
